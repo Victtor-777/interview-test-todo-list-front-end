@@ -5,16 +5,17 @@ import { Task } from "@/types/task";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Trash2, Calendar, CheckCircle2, Circle } from "lucide-react";
+import { Trash2, Calendar, CheckCircle2, Circle, User } from "lucide-react";
 import { useTasks } from "@/hooks/use-tasks";
 import { TaskDialog } from "../task-dialog";
 import { toast } from "sonner";
 
 interface TaskCardProps {
   task: Task;
+  showOwner?: boolean;
 }
 
-export function TaskCard({ task }: TaskCardProps) {
+export function TaskCard({ task, showOwner = false }: TaskCardProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { toggleComplete, deleteTask } = useTasks();
 
@@ -29,7 +30,8 @@ export function TaskCard({ task }: TaskCardProps) {
   const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation();
 
-    toast.info("Tem certeza? Esta ação não pode ser desfeita.", {
+    toast.info("Tem certeza?", {
+      description: "Esta ação não pode ser desfeita.",
       action: {
         label: "Deletar",
         onClick: () => deleteTask.mutate(task.id),
@@ -57,10 +59,7 @@ export function TaskCard({ task }: TaskCardProps) {
       >
         <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
           <div className="flex items-start gap-3 flex-1">
-            <button
-              onClick={handleToggleComplete}
-              className="mt-1 shrink-0 cursor-pointer"
-            >
+            <button onClick={handleToggleComplete} className="mt-1 shrink-0">
               {task.isCompleted ? (
                 <CheckCircle2 className="h-5 w-5 text-green-500" />
               ) : (
@@ -68,20 +67,29 @@ export function TaskCard({ task }: TaskCardProps) {
               )}
             </button>
 
-            <CardTitle
-              className={`text-base ${
-                task.isCompleted ? "line-through text-muted-foreground" : ""
-              }`}
-            >
-              {task.title}
-            </CardTitle>
+            <div className="flex-1 space-y-1">
+              <CardTitle
+                className={`text-base ${
+                  task.isCompleted ? "line-through text-muted-foreground" : ""
+                }`}
+              >
+                {task.title}
+              </CardTitle>
+
+              {showOwner && task.user && (
+                <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                  <User className="h-3 w-3" />
+                  <span>{task.user.name}</span>
+                </div>
+              )}
+            </div>
           </div>
 
           <Button
             variant="ghost"
             size="icon"
             onClick={handleDelete}
-            className="h-8 w-8 shrink-0 cursor-pointer"
+            className="h-8 w-8 shrink-0"
           >
             <Trash2 className="h-4 w-4 text-destructive" />
           </Button>
@@ -90,7 +98,7 @@ export function TaskCard({ task }: TaskCardProps) {
         <CardContent>
           {task.description && (
             <p
-              className={`text-sm mb-3 ${
+              className={`text-sm mb-3 line-clamp-2 ${
                 task.isCompleted ? "text-muted-foreground" : ""
               }`}
             >
