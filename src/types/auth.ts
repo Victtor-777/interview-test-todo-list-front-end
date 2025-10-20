@@ -16,6 +16,7 @@ export interface LoginRequest {
 
 export interface LoginResponse {
   accessToken: string;
+  user: User;
 }
 
 export interface SignUpRequest {
@@ -23,12 +24,5 @@ export interface SignUpRequest {
   email: string;
   password: string;
   confirmPassword: string;
-  role?: Role;
-}
-
-export interface AuthContextType {
-  user: User | null;
-  isLoading: boolean;
-  login: (data: LoginRequest) => Promise<void>;
-  logout: () => void;
+  role: Role;
 }

@@ -20,8 +20,16 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { authService } from "@/services/auth-service";
 import { ApiError } from "@/types/error";
+import { Role } from "@/types/auth";
 
 const signUpSchema = z
   .object({
@@ -29,6 +37,9 @@ const signUpSchema = z
     email: z.string().email("Email inválido"),
     password: z.string().min(6, "Senha deve ter no mínimo 6 caracteres"),
     confirmPassword: z.string(),
+    role: z.enum(["USER", "ADMIN"], {
+      message: "Selecione uma função",
+    }),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "As senhas não coincidem",
@@ -46,14 +57,23 @@ export default function SignUpPage() {
     handleSubmit,
     formState: { errors },
     reset,
+    setValue,
+    watch,
   } = useForm<SignUpFormData>({
     resolver: zodResolver(signUpSchema),
+    defaultValues: {
+      role: "USER",
+    },
   });
+
+  const selectedRole = watch("role");
 
   const onSubmit = async (data: SignUpFormData) => {
     setIsLoading(true);
 
     try {
+      console.log("Dados do formulário:", data);
+
       await authService.signUp(data);
 
       toast.success(
@@ -93,6 +113,7 @@ export default function SignUpPage() {
 
         <form onSubmit={handleSubmit(onSubmit)}>
           <CardContent className="space-y-4">
+            {/* Nome */}
             <div className="space-y-2">
               <Label htmlFor="name">Nome</Label>
               <Input
@@ -107,6 +128,7 @@ export default function SignUpPage() {
               )}
             </div>
 
+            {/* Email */}
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
@@ -121,6 +143,48 @@ export default function SignUpPage() {
               )}
             </div>
 
+            {/* Select de Role */}
+            <div className="space-y-2">
+              <Label htmlFor="role">Tipo de Conta</Label>
+              <Select
+                value={selectedRole}
+                onValueChange={(value: Role) => setValue("role", value)}
+                disabled={isLoading}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione o tipo de conta" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="USER">
+                    <div className="flex items-center gap-2">
+                      <span>👤</span>
+                      <div>
+                        <p className="font-medium">Usuário</p>
+                        <p className="text-xs text-muted-foreground">
+                          Acesso padrão ao sistema
+                        </p>
+                      </div>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="ADMIN">
+                    <div className="flex items-center gap-2">
+                      <span>🛡️</span>
+                      <div>
+                        <p className="font-medium">Administrador</p>
+                        <p className="text-xs text-muted-foreground">
+                          Acesso total e gerenciamento
+                        </p>
+                      </div>
+                    </div>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+              {errors.role && (
+                <p className="text-sm text-red-500">{errors.role.message}</p>
+              )}
+            </div>
+
+            {/* Senha */}
             <div className="space-y-2">
               <Label htmlFor="password">Senha</Label>
               <Input
@@ -137,6 +201,7 @@ export default function SignUpPage() {
               )}
             </div>
 
+            {/* Confirmar Senha */}
             <div className="space-y-2">
               <Label htmlFor="confirmPassword">Confirmar Senha</Label>
               <Input

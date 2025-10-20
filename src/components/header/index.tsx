@@ -68,7 +68,12 @@ export function Header() {
           <Separator orientation="vertical" className="h-8" />
 
           {/* Botão de Logout */}
-          <Button variant="ghost" size="sm" onClick={logout}>
+          <Button
+            variant="ghost"
+            className="cursor-pointer"
+            size="sm"
+            onClick={logout}
+          >
             <LogOut className="h-4 w-4 mr-2" />
             Sair
           </Button>

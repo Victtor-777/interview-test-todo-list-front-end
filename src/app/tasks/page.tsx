@@ -61,7 +61,7 @@ export default function TasksPage() {
 
           <Button
             size="lg"
-            className="gap-2"
+            className="gap-2 cursor-pointer"
             onClick={() => setIsCreateDialogOpen(true)}
           >
             <Plus className="h-5 w-5" />
@@ -69,7 +69,7 @@ export default function TasksPage() {
           </Button>
         </div>
 
-        {/* ✅ Filtro para Admin */}
+        {/* Filtro para Admin */}
         {user?.role === "ADMIN" && (
           <div className="mb-6">
             <Tabs
@@ -77,8 +77,12 @@ export default function TasksPage() {
               onValueChange={(value) => setFilter(value as FilterType)}
             >
               <TabsList>
-                <TabsTrigger value="my-tasks">Minhas Tarefas</TabsTrigger>
-                <TabsTrigger value="all">Todas as Tarefas</TabsTrigger>
+                <TabsTrigger className="cursor-pointer" value="my-tasks">
+                  Minhas Tarefas
+                </TabsTrigger>
+                <TabsTrigger className="cursor-pointer" value="all">
+                  Todas as Tarefas
+                </TabsTrigger>
               </TabsList>
             </Tabs>
           </div>
@@ -140,7 +144,7 @@ export default function TasksPage() {
                 : "Nenhum usuário criou tarefas ainda."}
             </p>
             <Button
-              className="gap-2"
+              className="gap-2 cursor-pointer"
               onClick={() => setIsCreateDialogOpen(true)}
             >
               <Plus className="h-4 w-4" />
