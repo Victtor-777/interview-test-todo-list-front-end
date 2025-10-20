@@ -38,7 +38,7 @@ export default function TasksPage() {
 
           <Button
             size="lg"
-            className="gap-2"
+            className="gap-2 cursor-pointer"
             onClick={() => setIsCreateDialogOpen(true)}
           >
             <Plus className="h-5 w-5" />
@@ -98,7 +98,7 @@ export default function TasksPage() {
               Comece criando sua primeira tarefa!
             </p>
             <Button
-              className="gap-2"
+              className="gap-2 cursor-pointer"
               onClick={() => setIsCreateDialogOpen(true)}
             >
               <Plus className="h-4 w-4" />

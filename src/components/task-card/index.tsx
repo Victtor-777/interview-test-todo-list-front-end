@@ -57,7 +57,10 @@ export function TaskCard({ task }: TaskCardProps) {
       >
         <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
           <div className="flex items-start gap-3 flex-1">
-            <button onClick={handleToggleComplete} className="mt-1 shrink-0">
+            <button
+              onClick={handleToggleComplete}
+              className="mt-1 shrink-0 cursor-pointer"
+            >
               {task.isCompleted ? (
                 <CheckCircle2 className="h-5 w-5 text-green-500" />
               ) : (
@@ -78,7 +81,7 @@ export function TaskCard({ task }: TaskCardProps) {
             variant="ghost"
             size="icon"
             onClick={handleDelete}
-            className="h-8 w-8 shrink-0"
+            className="h-8 w-8 shrink-0 cursor-pointer"
           >
             <Trash2 className="h-4 w-4 text-destructive" />
           </Button>

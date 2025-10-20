@@ -104,13 +104,18 @@ export function CreateTaskDialog({ isOpen, onClose }: CreateTaskDialogProps) {
           <DialogFooter>
             <Button
               type="button"
+              className="cursor-pointer"
               variant="outline"
               onClick={handleClose}
               disabled={createTask.isPending}
             >
               Cancelar
             </Button>
-            <Button type="submit" disabled={createTask.isPending}>
+            <Button
+              type="submit"
+              className="cursor-pointer"
+              disabled={createTask.isPending}
+            >
               {createTask.isPending ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
