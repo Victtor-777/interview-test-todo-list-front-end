@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Trash2, Calendar, CheckCircle2, Circle } from "lucide-react";
 import { useTasks } from "@/hooks/use-tasks";
 import { TaskDialog } from "../task-dialog";
+import { toast } from "sonner";
 
 interface TaskCardProps {
   task: Task;
@@ -27,9 +28,17 @@ export function TaskCard({ task }: TaskCardProps) {
 
   const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (confirm("Tem certeza que deseja deletar esta tarefa?")) {
-      deleteTask.mutate(task.id);
-    }
+
+    toast.info("Tem certeza? Esta ação não pode ser desfeita.", {
+      action: {
+        label: "Deletar",
+        onClick: () => deleteTask.mutate(task.id),
+      },
+      cancel: {
+        label: "Cancelar",
+        onClick: () => {},
+      },
+    });
   };
 
   const formatDate = (date: string) => {

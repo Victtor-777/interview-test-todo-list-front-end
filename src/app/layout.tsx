@@ -34,7 +34,7 @@ export default function RootLayout({
         <Providers>
           <AuthProvider>
             <ConditionalLayout>{children}</ConditionalLayout>
-            <Toaster />
+            <Toaster position="top-center" />
           </AuthProvider>
         </Providers>
       </body>

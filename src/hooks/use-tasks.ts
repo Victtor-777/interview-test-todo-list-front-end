@@ -35,7 +35,7 @@ export function useTasks() {
       taskService.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
-      toast.success("Tarefa atualizada com sucesso! ✅");
+      toast.success("Tarefa atualizada com sucesso! ✏️");
     },
     onError: (error: any) => {
       toast.error("Erro ao atualizar tarefa", {
@@ -60,8 +60,14 @@ export function useTasks() {
   const toggleComplete = useMutation({
     mutationFn: ({ id, isCompleted }: { id: string; isCompleted: boolean }) =>
       taskService.toggleComplete(id, isCompleted),
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
+
+      if (data.isCompleted) {
+        toast.success("Tarefa concluída! 🎉");
+      } else {
+        toast.success("Tarefa reaberta! 🔄");
+      }
     },
     onError: (error: any) => {
       toast.error("Erro ao atualizar status", {

@@ -46,17 +46,15 @@ export default function LoginPage() {
     try {
       await login(data);
 
-      toast.success("Login realizado com sucesso! 🎉", {
-        description: "Redirecionando para suas tarefas...",
-      });
+      toast.success("Login realizado com sucesso! 🎉");
     } catch (error: any) {
       console.error("Erro ao fazer login:", error);
 
-      toast.error("Erro ao fazer login", {
-        description:
-          error.response?.data?.message ||
-          "Credenciais inválidas. Tente novamente.",
-      });
+      toast.error(
+        "Erro ao fazer login",
+        error.response?.data?.message ||
+          "Credenciais inválidas. Tente novamente."
+      );
     } finally {
       setIsLoading(false);
     }
