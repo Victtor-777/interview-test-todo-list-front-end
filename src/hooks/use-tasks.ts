@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { taskService } from "@/services/task-service";
 import { toast } from "sonner";
 import { CreateTaskRequest, UpdateTaskRequest } from "@/types/task";
+import { ApiError } from "@/types/error";
 
 export function useTasks() {
   const queryClient = useQueryClient();
@@ -23,7 +24,7 @@ export function useTasks() {
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
       toast.success("Tarefa criada com sucesso! ✅");
     },
-    onError: (error: any) => {
+    onError: (error: ApiError) => {
       toast.error("Erro ao criar tarefa", {
         description: error.response?.data?.message || "Tente novamente.",
       });
@@ -37,7 +38,7 @@ export function useTasks() {
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
       toast.success("Tarefa atualizada com sucesso! ✏️");
     },
-    onError: (error: any) => {
+    onError: (error: ApiError) => {
       toast.error("Erro ao atualizar tarefa", {
         description: error.response?.data?.message || "Tente novamente.",
       });
@@ -50,7 +51,7 @@ export function useTasks() {
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
       toast.success("Tarefa deletada com sucesso! 🗑️");
     },
-    onError: (error: any) => {
+    onError: (error: ApiError) => {
       toast.error("Erro ao deletar tarefa", {
         description: error.response?.data?.message || "Tente novamente.",
       });
@@ -69,7 +70,7 @@ export function useTasks() {
         toast.success("Tarefa reaberta! 🔄");
       }
     },
-    onError: (error: any) => {
+    onError: (error: ApiError) => {
       toast.error("Erro ao atualizar status", {
         description: error.response?.data?.message || "Tente novamente.",
       });

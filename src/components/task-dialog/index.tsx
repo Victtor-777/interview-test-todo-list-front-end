@@ -8,6 +8,7 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
+  DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,7 +25,6 @@ interface TaskDialogProps {
 }
 
 export function TaskDialog({ task, isOpen, onClose }: TaskDialogProps) {
-  const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState<UpdateTaskRequest>({
     title: task.title,
     description: task.description || "",
@@ -33,25 +33,42 @@ export function TaskDialog({ task, isOpen, onClose }: TaskDialogProps) {
   const { updateTask } = useTasks();
 
   useEffect(() => {
-    setFormData({
-      title: task.title,
-      description: task.description || "",
-    });
-    setIsEditing(false);
-  }, [task]);
+    if (isOpen) {
+      setFormData({
+        title: task.title,
+        description: task.description || "",
+      });
+    }
+  }, [task, isOpen]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    const hasChanges =
+      formData.title !== task.title ||
+      formData.description !== (task.description || "");
+
+    if (!hasChanges) {
+      onClose();
+      return;
+    }
 
     updateTask.mutate(
       { id: task.id, data: formData },
       {
         onSuccess: () => {
-          setIsEditing(false);
           onClose();
         },
       }
     );
+  };
+
+  const handleClose = () => {
+    setFormData({
+      title: task.title,
+      description: task.description || "",
+    });
+    onClose();
   };
 
   const formatDate = (date: string) => {
@@ -65,13 +82,11 @@ export function TaskDialog({ task, isOpen, onClose }: TaskDialogProps) {
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-[525px]">
         <DialogHeader>
-          <DialogTitle>
-            {isEditing ? "Editar Tarefa" : "Detalhes da Tarefa"}
-          </DialogTitle>
-          <DialogDescription>
+          <DialogTitle>Editar Tarefa</DialogTitle>
+          <DialogDescription className="flex items-center gap-2">
             {task.isCompleted ? (
               <Badge variant="secondary" className="mt-2">
                 ✅ Concluída
@@ -86,81 +101,64 @@ export function TaskDialog({ task, isOpen, onClose }: TaskDialogProps) {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="title">Título</Label>
-            {isEditing ? (
-              <Input
-                id="title"
-                value={formData.title}
-                onChange={(e) =>
-                  setFormData({ ...formData, title: e.target.value })
-                }
-                required
-              />
-            ) : (
-              <p className="text-sm font-medium">{task.title}</p>
-            )}
+            <Label htmlFor="title">
+              Título <span className="text-red-500">*</span>
+            </Label>
+            <Input
+              id="title"
+              value={formData.title}
+              onChange={(e) =>
+                setFormData({ ...formData, title: e.target.value })
+              }
+              placeholder="Digite o título da tarefa"
+              required
+              autoFocus
+              disabled={updateTask.isPending}
+            />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description">Descrição</Label>
-            {isEditing ? (
-              <Textarea
-                id="description"
-                value={formData.description}
-                onChange={(e) =>
-                  setFormData({ ...formData, description: e.target.value })
-                }
-                rows={4}
-              />
-            ) : (
-              <p className="text-sm text-muted-foreground">
-                {task.description || "Sem descrição"}
-              </p>
+            <Label htmlFor="description">Descrição (opcional)</Label>
+            <Textarea
+              id="description"
+              value={formData.description}
+              onChange={(e) =>
+                setFormData({ ...formData, description: e.target.value })
+              }
+              placeholder="Adicione uma descrição..."
+              rows={4}
+              disabled={updateTask.isPending}
+            />
+          </div>
+
+          <div className="space-y-1 text-xs text-muted-foreground border-t pt-3">
+            <p>Criada em: {formatDate(task.createdAt)}</p>
+            <p>Última atualização: {formatDate(task.updatedAt)}</p>
+            {task.completedAt && (
+              <p>Concluída em: {formatDate(task.completedAt)}</p>
             )}
           </div>
 
-          {!isEditing && (
-            <div className="space-y-1 text-xs text-muted-foreground border-t pt-3">
-              <p>Criada em: {formatDate(task.createdAt)}</p>
-              <p>Última atualização: {formatDate(task.updatedAt)}</p>
-              {task.completedAt && (
-                <p>Concluída em: {formatDate(task.completedAt)}</p>
+          <DialogFooter className="gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleClose}
+              disabled={updateTask.isPending}
+            >
+              Cancelar
+            </Button>
+            <Button type="submit" disabled={updateTask.isPending}>
+              {updateTask.isPending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Salvando...
+                </>
+              ) : (
+                "Salvar"
               )}
-            </div>
-          )}
-
-          <div className="flex justify-end gap-2 pt-2">
-            {isEditing ? (
-              <>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setIsEditing(false)}
-                >
-                  Cancelar
-                </Button>
-                <Button type="submit" disabled={updateTask.isPending}>
-                  {updateTask.isPending ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Salvando...
-                    </>
-                  ) : (
-                    "Salvar"
-                  )}
-                </Button>
-              </>
-            ) : (
-              <>
-                <Button type="button" variant="outline" onClick={onClose}>
-                  Fechar
-                </Button>
-                <Button type="button" onClick={() => setIsEditing(true)}>
-                  Editar
-                </Button>
-              </>
-            )}
-          </div>
+            </Button>
+          </DialogFooter>
         </form>
       </DialogContent>
     </Dialog>

@@ -2,11 +2,13 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
+
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -18,42 +20,59 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useAuth } from "@/hooks/use-auth";
+import { authService } from "@/services/auth-service";
 import { ApiError } from "@/types/error";
 
-const loginSchema = z.object({
-  email: z.string().email("Email inválido"),
-  password: z.string().min(6, "Senha deve ter no mínimo 6 caracteres"),
-});
+const signUpSchema = z
+  .object({
+    name: z.string().min(3, "Nome deve ter no mínimo 3 caracteres"),
+    email: z.string().email("Email inválido"),
+    password: z.string().min(6, "Senha deve ter no mínimo 6 caracteres"),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "As senhas não coincidem",
+    path: ["confirmPassword"],
+  });
 
-type LoginFormData = z.infer<typeof loginSchema>;
+type SignUpFormData = z.infer<typeof signUpSchema>;
 
-export default function LoginPage() {
+export default function SignUpPage() {
   const [isLoading, setIsLoading] = useState(false);
-  const { login } = useAuth();
+  const router = useRouter();
 
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<LoginFormData>({
-    resolver: zodResolver(loginSchema),
+    reset,
+  } = useForm<SignUpFormData>({
+    resolver: zodResolver(signUpSchema),
   });
 
-  const onSubmit = async (data: LoginFormData) => {
+  const onSubmit = async (data: SignUpFormData) => {
     setIsLoading(true);
 
     try {
-      await login(data);
-      toast.success("Login realizado com sucesso! 🎉");
+      await authService.signUp(data);
+
+      toast.success(
+        "Conta criada com sucesso! 🎉 Redirecionando para o login..."
+      );
+
+      reset();
+
+      setTimeout(() => {
+        router.push("/");
+      }, 1500);
     } catch (error) {
       const apiError = error as ApiError;
-      console.error("Erro ao fazer login:", apiError);
+      console.error("Erro ao criar conta:", apiError);
 
-      toast.error("Erro ao fazer login", {
+      toast.error("Erro ao criar conta", {
         description:
           apiError.response?.data?.message ||
-          "Credenciais inválidas. Tente novamente.",
+          "Email já cadastrado ou dados inválidos.",
       });
     } finally {
       setIsLoading(false);
@@ -65,15 +84,29 @@ export default function LoginPage() {
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold text-center">
-            Task Manager
+            Criar Conta
           </CardTitle>
           <CardDescription className="text-center">
-            Entre com suas credenciais para acessar suas tarefas
+            Preencha os dados para criar sua conta
           </CardDescription>
         </CardHeader>
 
         <form onSubmit={handleSubmit(onSubmit)}>
           <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="name">Nome</Label>
+              <Input
+                id="name"
+                type="text"
+                placeholder="Seu nome completo"
+                disabled={isLoading}
+                {...register("name")}
+              />
+              {errors.name && (
+                <p className="text-sm text-red-500">{errors.name.message}</p>
+              )}
+            </div>
+
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
@@ -103,6 +136,22 @@ export default function LoginPage() {
                 </p>
               )}
             </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="confirmPassword">Confirmar Senha</Label>
+              <Input
+                id="confirmPassword"
+                type="password"
+                placeholder="••••••••"
+                disabled={isLoading}
+                {...register("confirmPassword")}
+              />
+              {errors.confirmPassword && (
+                <p className="text-sm text-red-500">
+                  {errors.confirmPassword.message}
+                </p>
+              )}
+            </div>
           </CardContent>
 
           <CardFooter className="flex flex-col space-y-4 mt-4">
@@ -110,20 +159,20 @@ export default function LoginPage() {
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Entrando...
+                  Criando conta...
                 </>
               ) : (
-                "Entrar"
+                "Criar Conta"
               )}
             </Button>
 
             <div className="text-sm text-center text-muted-foreground">
-              Não tem uma conta?{" "}
+              Já tem uma conta?{" "}
               <Link
-                href="/signup"
+                href="/"
                 className="text-primary hover:underline font-medium"
               >
-                Cadastre-se
+                Faça login
               </Link>
             </div>
           </CardFooter>
