@@ -26,3 +26,10 @@ export interface SignUpRequest {
   confirmPassword: string;
   role: Role;
 }
+
+export interface AuthContextType {
+  user: User | null;
+  isLoading: boolean;
+  login: (data: LoginRequest) => Promise<void>;
+  logout: () => void;
+}
